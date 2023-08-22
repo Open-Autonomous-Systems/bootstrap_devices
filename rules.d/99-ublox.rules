@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a9", SYMLINK+="ttyUblox", GROUP="dialout", MODE="0666", RUN+="/bin/stty -F /dev/%k 230400 -echo"

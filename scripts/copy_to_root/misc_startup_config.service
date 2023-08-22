@@ -1,0 +1,13 @@
+[Unit]
+
+Description=Misc User defined startup calls, multicast and console logging
+After=network.target
+  
+[Service]
+User=root
+ExecStart=/bin/bash -c '/usr/local/bin/misc_startup_scripts.sh'
+
+
+[Install]
+
+WantedBy=multi-user.target

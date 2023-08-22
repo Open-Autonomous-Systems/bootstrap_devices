@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+
+  <arg name="robot_ns" default="$(env ROBOT_NAME)"/>
+  <arg name="cam_nodelet" default="vision_nodelet_manager"/>
+
+  <group ns="$(arg robot_ns)" if="$(env DJICore)">
+    <include file="$(find dji_sdk)/launch/sdk.launch"/>
+  </group>
+
+  <group if="$(env MultiMaster)">
+    <include file="$(find fkie_master_discovery)/launch/master_discovery.launch"/>
+    <include file="$(find fkie_master_sync)/launch/master_sync.launch"/>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env Simplenav)">
+    <include file="$(find simplenav)/launch/go.launch">
+      <arg name="run_bench_test" value="$(env BenchTest)" />
+    </include>
+
+    <node name="$(arg robot_ns)_odom_throttle" pkg="topic_tools" type="throttle" args="messages simplenav/odom 1" />
+    <node name="$(arg robot_ns)_homepose_throttle" pkg="topic_tools" type="throttle" args="messages simplenav/homePose 1" />
+    <node name="$(arg robot_ns)_hover_status_throttle" pkg="topic_tools" type="throttle" args="messages simplenav/hover/status 1" />
+    <node name="$(arg robot_ns)_hover_feedback_throttle" pkg="topic_tools" type="throttle" args="messages simplenav/hover/feedback 1" />
+    <node name="$(arg robot_ns)_nav_feedback_throttle" pkg="topic_tools" type="throttle" args="messages navigator/feedback 1" />
+    <node name="$(arg robot_ns)_nav_status_throttle" pkg="topic_tools" type="throttle" args="messages navigator/status 1" />
+
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env RobotState)">
+    <include file="$(find simplenav)/launch/robot_state.launch"/>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env Spinnaker)">
+    <node pkg="nodelet" type="nodelet" name="$(arg cam_nodelet)" args="manager" output="screen"/>
+
+    <include file="$(find spinnaker_sdk_camera_driver)/launch/acquisition.launch">
+      <arg name="manager" value="$(arg cam_nodelet)"/>
+      <arg name="external_manager" value="true"/>
+    </include>
+    <node name="$(arg robot_ns)_cam0_throttle" pkg="topic_tools" type="throttle" args="messages camera_array/cam0/image_raw 1" />
+    <node name="$(arg robot_ns)_cam1_throttle" pkg="topic_tools" type="throttle" args="messages camera_array/cam1/image_raw 1" />  
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env IRCamera)">
+    <!-- include file="$(find flir_boson_usb)/launch/flir_boson_nodelet.launch"/ -->
+    <include file="$(find boson_sdk_camera_driver)/launch/boson.launch"/>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env Vn100)">
+    <include file="$(find imu_vn_100)/launch/vn_100_cont.launch"/>
+  </group>
+
+  <group if="$(env ZedCamera)">
+    <include file="$(find zed_wrapper)/launch/zedm.launch"/>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env Nmea_gps2)">
+    <include file="$(find nmea_navsat_driver)/launch/nmea_serial_driver.launch">
+      <arg name="port" value="/dev/ttyACM0" />
+      <arg name="baud" value="9600" />
+    </include>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env Ublox_gnss)">
+    <node name="$(arg robot_ns)_gpsd_client" pkg="gpsd_client" type="gpsd_client" >
+	<param name="check_fix_by_variance" value="True" />
+    </node>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env YoloIR)">
+    <include file="$(find darknet_ros)/launch/yolo_v3.launch" >
+      <arg name="robot_ns"  default="$(arg robot_ns)" />
+    </include>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env AprilTag)">
+    <include file="$(find apriltag_ros)/launch/continuous_detection.launch">
+      <!-- arg name="nodelet_manager_name" value="$(arg cam_nodelet)"/ -->
+    </include>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env AprilTrack)">
+    <include file="$(find april_track)/launch/start_tracking.launch"/>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env Swarm)">
+    <include file="$(find ducs)/launch/sa.launch"/>
+  </group>
+
+  <group ns="$(arg robot_ns)" if="$(env WirelessCharge)">
+    <include file="$(find wirelesscharging_station)/launch/wc_uav.launch"/>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env Lidarlite)">
+    <include file="$(find lidarlite_driver)/launch/lidarlite.launch"/>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env PX4Flow)">
+    <include file="$(find mavros_extras)/launch/px4flow.launch"/>
+  </group>
+  
+  <group ns="$(arg robot_ns)" if="$(env OpticalFlow)">
+    <include file="$(find opticalflow_ros)/launch/opticalflow_track.launch"/>
+  </group>
+ 
+</launch>

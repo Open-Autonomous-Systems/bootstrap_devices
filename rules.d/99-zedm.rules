@@ -1,0 +1,1 @@
+SUBSYSTEM=="video4linux", KERNEL=="video[0-9]*", ACTION=="add", ATTRS{idVendor}=="2b03", ATTRS{idProduct}=="f682", ATTRS{product}=="ZED-M", SYMLINK+="videoZEDM%k", GROUP="video"

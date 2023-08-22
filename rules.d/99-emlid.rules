@@ -1,0 +1,2 @@
+SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="3032", ATTRS{idProduct}=="0014", SYMLINK+="ttyEmlidGnss_%s{serial}", GROUP="dialout", MODE="0666"
+
